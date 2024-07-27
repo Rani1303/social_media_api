@@ -6,14 +6,14 @@ from bson import ObjectId
 
 user_router = APIRouter()
 
-@user_router.get("/all_users", tags=["All Users"])
+@user_router.get("/all_users", tags=["Users"])
 async def get_users():
     users = await collection.find().to_list(length=None)
     if not users:
         return {"message": "No users found"}
     return serializeList(users)
 
-@user_router.post("/signup", tags=["users"])
+@user_router.post("/signup", tags=["Users"])
 async def create_user(user: User):
     existing_user = await collection.find_one({"email": user.email})
     if existing_user:
@@ -22,14 +22,14 @@ async def create_user(user: User):
     created_user = await collection.find_one({"_id": new_user.inserted_id})
     return serializeDict(created_user)
 
-@user_router.post("/login", tags=["users"])
+@user_router.post("/login", tags=["Users"])
 async def login(email: str):
     user = await collection.find_one({"email": email})
     if user:
         return serializeDict(user)
     raise HTTPException(status_code=400, detail="User not found")
 
-@user_router.put("/update_user", tags=["users"])
+@user_router.put("/update_user", tags=["Users"])
 async def update_user(id: str, user: User):
     update_result = await collection.update_one(
         {"_id": ObjectId(id)},
@@ -40,7 +40,7 @@ async def update_user(id: str, user: User):
         return serializeDict(updated_user)
     raise HTTPException(status_code=404, detail="User not found")
 
-@user_router.delete("/delete_user", tags=["users"])
+@user_router.delete("/delete_user", tags=["Users"])
 async def delete_user(id: str):
     delete_result = await collection.delete_one({"_id": ObjectId(id)})
     if delete_result.deleted_count:
